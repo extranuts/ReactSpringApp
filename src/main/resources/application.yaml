@@ -1,0 +1,14 @@
+server:
+  port: 8088
+spring:
+  r2dbc:
+    url: r2dbc:pool:postgres://localhost:5432/reactiveWeb
+    username: postgres
+    password: pass
+  flyway:
+    url: jdbc:postgresql://localhost:5432/reactiveWeb
+    locations: classpath:db/migration
+    user: postgres
+    password: pass
+
+
