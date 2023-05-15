@@ -12,3 +12,12 @@ spring:
     password: pass
 
 
+jwt:
+  password:
+    encoder:
+      secret: 1707846b9794937cbd0329a50f6adf4e5bab77835a
+      iteration: 64
+      keyLength: 256
+  secret: g1707846b9794937cbd0329a50733274d676d60a850380f6adf4e5bab77835a2
+  expiration: 3600
+  issuer: HeadOfService
