@@ -1,6 +1,7 @@
 package com.dom.reactspringapp.security;
 
 import com.dom.reactspringapp.entity.UserEntity;
+import com.dom.reactspringapp.exception.AuthException;
 import com.dom.reactspringapp.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -34,7 +35,7 @@ public class SecurityService {
     }
 
     private TokenDetails generateToken(Map<String, Object> claims, String subject) {
-        Long expirationTimeInMillis = expirationInSeconds * 1000L;
+        long expirationTimeInMillis = Long.parseLong(expirationInSeconds) * 1000L;
         Date exprirationDate = new Date(new Date().getTime() + expirationTimeInMillis);
 
         return generateToken(exprirationDate, claims, subject);
@@ -62,16 +63,16 @@ public class SecurityService {
         return userRepository.findByUsername(username)
                 .flatMap(user -> {
                     if (!user.isEnabled()) {
-                        return Mono.error(new RuntimeException(""));
+                        return Mono.error(new AuthException("Account disabled", "USER_ACCOUNT_DISABLED"));
                     }
                     if (!passwordEncoder.matches(password, user.getPassword())) {
-                        return Mono.error(new RuntimeException(""));
+                        return Mono.error(new AuthException("Invalid password", "INVALID_PASSWORD"));
                     }
                     return Mono.just(generateToken(user).builder()
                             .userId(user.getId())
                             .build()
                     );
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("")));
+                .switchIfEmpty(Mono.error(new AuthException("Invalid username", "INVALID_USERNAME")));
     }
 }
