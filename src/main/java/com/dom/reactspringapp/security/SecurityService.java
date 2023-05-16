@@ -2,7 +2,7 @@ package com.dom.reactspringapp.security;
 
 import com.dom.reactspringapp.entity.UserEntity;
 import com.dom.reactspringapp.exception.AuthException;
-import com.dom.reactspringapp.repository.UserRepository;
+import com.dom.reactspringapp.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.secret}")
@@ -30,6 +30,7 @@ public class SecurityService {
     private TokenDetails generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>() {{
             put("role", user.getId());
+            put("username", user.getUsername());
         }};
         return generateToken(claims, user.getId().toString());
     }
@@ -60,7 +61,7 @@ public class SecurityService {
     }
 
     public Mono<TokenDetails> authenticate(String username, String password) {
-        return userRepository.findByUsername(username)
+        return userService.getByUsername(username)
                 .flatMap(user -> {
                     if (!user.isEnabled()) {
                         return Mono.error(new AuthException("Account disabled", "USER_ACCOUNT_DISABLED"));
@@ -68,7 +69,7 @@ public class SecurityService {
                     if (!passwordEncoder.matches(password, user.getPassword())) {
                         return Mono.error(new AuthException("Invalid password", "INVALID_PASSWORD"));
                     }
-                    return Mono.just(generateToken(user).builder()
+                    return Mono.just(generateToken(user).toBuilder()
                             .userId(user.getId())
                             .build()
                     );

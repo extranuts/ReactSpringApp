@@ -1,6 +1,7 @@
-package com.dom.reactspringapp.security;
+package com.dom.reactspringapp.dto;
 
-
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +13,10 @@ import java.util.Date;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDetails {
-
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class AuthResponseDTO {
     private Long userId;
     private String token;
     private Date issuedAt;
     private Date expiresAt;
-
-
 }
