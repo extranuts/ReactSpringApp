@@ -12,7 +12,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class BearerTokenServerAuthenticationConverter implements ServerAuthenticationConverter {
 
-    private final JWTHandler jwtHandler;
+    private final JwtHandler jwtHandler;
     private static final String BEARER_PREFIX = "Bearer ";
     public static final Function<String, Mono<String>> getBearerValue = authValue ->
             Mono.justOrEmpty(authValue.substring(BEARER_PREFIX.length()));

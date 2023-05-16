@@ -3,9 +3,10 @@ package com.dom.reactspringapp.config;
 
 import com.dom.reactspringapp.security.AuthenticationManager;
 import com.dom.reactspringapp.security.BearerTokenServerAuthenticationConverter;
-import com.dom.reactspringapp.security.JWTHandler;
+import com.dom.reactspringapp.security.JwtHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,10 +26,11 @@ public class WebSecurityConfig {
     @Value("${jwt.secret}")
     private String secret;
 
-    private final String[] publicRoutes = {"api/v1/auth/register", "api/v1/auth/login"};
+    private final String[] publicRoutes = {"/api/v1/auth/register", "/api/v1/auth/login"};
 
 
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, AuthenticationManager manager) {
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, AuthenticationManager authenticationManager) {
         return http
                 .csrf().disable()
                 .authorizeExchange()
@@ -41,21 +43,22 @@ public class WebSecurityConfig {
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint((swe, e) -> {
-                    log.error("In securityWebFilterChain - *UNAUTHORIZED* error: {}", e.getMessage());
+                    log.error("IN securityWebFilterChain - unauthorized error: {}", e.getMessage());
                     return Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED));
                 })
                 .accessDeniedHandler((swe, e) -> {
-                    log.error("In securityWebFilterChain - *FORBIDDEN* error: {}", e.getMessage());
+                    log.error("IN securityWebFilterChain - access denied: {}", e.getMessage());
+
                     return Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.FORBIDDEN));
                 })
                 .and()
-                .addFilterAt(bearerAuthenticationFilter(manager), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(bearerAuthenticationFilter(authenticationManager), SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 
     private AuthenticationWebFilter bearerAuthenticationFilter(AuthenticationManager authenticationManager) {
         AuthenticationWebFilter bearerAuthFilter = new AuthenticationWebFilter(authenticationManager);
-        bearerAuthFilter.setServerAuthenticationConverter(new BearerTokenServerAuthenticationConverter(new JWTHandler(secret)));
+        bearerAuthFilter.setServerAuthenticationConverter(new BearerTokenServerAuthenticationConverter(new JwtHandler(secret)));
         bearerAuthFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/**"));
 
         return bearerAuthFilter;

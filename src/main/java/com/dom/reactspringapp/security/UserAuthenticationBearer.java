@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public class UserAuthenticationBearer {
-    public static Mono<Authentication> create(JWTHandler.VerificationResult verification) {
+    public static Mono<Authentication> create(JwtHandler.VerificationResult verification) {
         Claims claims = verification.claims;
         String subject = claims.getSubject();
 

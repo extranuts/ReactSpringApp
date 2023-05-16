@@ -2,7 +2,7 @@ package com.dom.reactspringapp.security;
 
 import com.dom.reactspringapp.entity.UserEntity;
 import com.dom.reactspringapp.exception.UnauthorizedException;
-import com.dom.reactspringapp.repository.UserRepository;
+import com.dom.reactspringapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthenticationManager implements ReactiveAuthenticationManager {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
-        return userRepository.findById(principal.getId())
+        return userService.getUserById(principal.getId())
                 .filter(UserEntity::isEnabled)
                 .switchIfEmpty(Mono.error(new UnauthorizedException("User disabled")))
                 .map(user -> authentication);

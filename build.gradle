@@ -33,6 +33,7 @@ dependencies {
     implementation "org.mapstruct:mapstruct:$mapStructVer"
     implementation "io.jsonwebtoken:jjwt:$jjwtVersion"
     implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVer"
